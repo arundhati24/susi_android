@@ -4,6 +4,7 @@ import org.fossasia.susi.ai.rest.clients.BaseUrl;
 import org.fossasia.susi.ai.rest.responses.susi.ChangeSettingResponse;
 import org.fossasia.susi.ai.rest.responses.susi.FiveStarSkillRatingResponse;
 import org.fossasia.susi.ai.rest.responses.susi.ForgotPasswordResponse;
+import org.fossasia.susi.ai.rest.responses.susi.GetSkillRatingResponse;
 import org.fossasia.susi.ai.rest.responses.susi.ListGroupsResponse;
 import org.fossasia.susi.ai.rest.responses.susi.ListSkillsResponse;
 import org.fossasia.susi.ai.rest.responses.susi.LoginResponse;
@@ -188,4 +189,19 @@ public interface SusiService {
     @GET("/cms/getSkillList.json")
     Call<ListSkillsResponse> fetchListSkills(@Query("group") String groups);
 
+    /**
+     *
+     * Get skill rating from the server
+     *
+     * @param model       Model of the skill (e.g. general)
+     * @param group       Group of skill (e.g. Knowledge)
+     * @param language    Language directory in which the skill resides (e.g. en)
+     * @param skill       Skill Tag of object in which the skill data resides
+     * @return the Call
+     */
+    @GET("/cms/getSkillRating.json")
+    Call<GetSkillRatingResponse> getSkillRating(@Query("model") String model,
+                                                @Query("group") String group,
+                                                @Query("language") String language,
+                                                @Query("skill") String skill);
 }

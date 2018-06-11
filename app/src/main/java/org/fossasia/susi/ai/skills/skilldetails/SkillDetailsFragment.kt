@@ -29,8 +29,10 @@ import org.fossasia.susi.ai.R
 import org.fossasia.susi.ai.chat.ChatActivity
 import org.fossasia.susi.ai.helper.PrefManager
 import org.fossasia.susi.ai.rest.responses.susi.SkillData
+import org.fossasia.susi.ai.rest.responses.susi.Stars
 import org.fossasia.susi.ai.skills.SkillsActivity
 import org.fossasia.susi.ai.skills.skilldetails.adapters.recycleradapters.SkillExamplesAdapter
+import timber.log.Timber
 import java.io.Serializable
 import java.util.*
 
@@ -50,18 +52,21 @@ class SkillDetailsFragment : Fragment() {
     private lateinit var fiveStarAverageSkillRating: TextView
     private lateinit var fiveStarTotalSkillRating: TextView
     private lateinit var skillRatingChart: HorizontalBarChart
+    private lateinit var starsObject: Stars
     private lateinit var xAxis: XAxis
 
     companion object {
         const val SKILL_KEY = "skill_key"
         const val SKILL_TAG = "skill_tag"
         const val SKILL_GROUP = "skill_group"
+        //const val STARS_OBJECT = "stars_object"
         fun newInstance(skillData: SkillData, skillGroup: String, skillTag: String): SkillDetailsFragment {
             val fragment = SkillDetailsFragment()
             val bundle = Bundle()
             bundle.putSerializable(SKILL_KEY, skillData as Serializable)
             bundle.putString(SKILL_GROUP, skillGroup)
             bundle.putString(SKILL_TAG, skillTag)
+            //bundle.putSerializable(STARS_OBJECT, starsObject as Serializable)
             fragment.arguments = bundle
 
             return fragment
@@ -73,6 +78,7 @@ class SkillDetailsFragment : Fragment() {
                 SKILL_KEY) as SkillData
         skillGroup = (arguments as Bundle).getString(SKILL_GROUP)
         skillTag = (arguments as Bundle).getString(SKILL_TAG)
+        //starsObject = (arguments as Bundle).getSerializable(STARS_OBJECT) as Stars
         return inflater.inflate(R.layout.fragment_skill_details, container, false)
     }
 
@@ -80,6 +86,7 @@ class SkillDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (skillData.skillName != null && !skillData.skillName.isEmpty())
             (activity as SkillsActivity).title = skillData.skillName
+        //starsObject = GetSkillRatingRequest.getRating(skillData.model, skillData.group, skillData.language, skillTag)
         setupUI()
         super.onViewCreated(view, savedInstanceState)
     }
@@ -206,21 +213,38 @@ class SkillDetailsFragment : Fragment() {
      */
     private fun setRating() {
 
+        GetSkillRatingRequest.getSkillRating(skillData.model, skillData.group, skillData.language, skillTag)
+        starsObject = GetSkillRatingRequest.starsObject
+
+        Timber.d("one star = %s", starsObject.oneStar)
+        Timber.d("two star = %s", starsObject.twoStar)
+        Timber.d("three star = %s", starsObject.threeStar)
+        Timber.d("four stars = %s", starsObject.fourStar)
+        Timber.d("five stars = %s", starsObject.fiveStar)
+        Timber.d("total stars = %s", starsObject.totalStar)
+        Timber.d("avg rating = %s", starsObject.averageStar)
+
         //If the user is logged in, set up the five star skill rating bar
         if (PrefManager.getToken() != null) {
+            Timber.d("pref manager")
             setUpFiveStarRatingBar()
         }
 
         //If the totalStar is positive, it implies that the skill has been rated
         //If so, set up the section to display the statistics else simply display a message for unrated skill
-        if (skillData.skillRating?.stars?.totalStar!! > 0) {
+        if (starsObject.totalStar > 0) {
+            Timber.d("total star > 0")
             fiveStarAverageSkillRating = tv_average_rating
             fiveStarTotalSkillRating = tv_total_rating
 
-            fiveStarTotalSkillRating.text = skillData.skillRating?.stars?.totalStar.toString()
-            fiveStarAverageSkillRating.text = skillData.skillRating?.stars?.averageStar.toString()
+//            fiveStarTotalSkillRating.text = skillData.skillRating?.stars?.totalStar.toString()
+//            fiveStarAverageSkillRating.text = skillData.skillRating?.stars?.averageStar.toString()
+            fiveStarTotalSkillRating.text = starsObject.totalStar.toString()
+            fiveStarAverageSkillRating.text = starsObject.averageStar.toString()
             setSkillGraph()
+            Timber.d("skill graph")
         } else {
+            Timber.d("else part")
             skill_rating_view.visibility = View.GONE
             tv_unrated_skill.visibility = View.VISIBLE
             if (PrefManager.getToken() != null) {
@@ -239,6 +263,7 @@ class SkillDetailsFragment : Fragment() {
      * stars given by the user.
      */
     private fun setUpFiveStarRatingBar() {
+        Timber.d("set up five star rating bar")
         fiveStarSkillRatingBar = five_star_skill_rating_bar
         fiveStarSkillRatingScaleTextView = tv_five_star_skill_rating_scale
 
@@ -249,11 +274,8 @@ class SkillDetailsFragment : Fragment() {
         //Set up the OnRatingCarChange listener to change the rating scale text view contents accordingly
         fiveStarSkillRatingBar.setOnRatingBarChangeListener({ ratingBar, v, b ->
 
+            Timber.d("inside listener")
             fiveStarSkillRatingScaleTextView.visibility = View.VISIBLE
-
-            //Send rating to the server
-            FiveStarSkillRatingRequest.sendFiveStarRating(skillData.model, skillData.group, skillData.language,
-                    skillTag, v.toInt().toString(), PrefManager.getToken().toString())
 
             fiveStarSkillRatingScaleTextView.setText(v.toString())
             when (ratingBar.rating.toInt()) {
@@ -267,7 +289,13 @@ class SkillDetailsFragment : Fragment() {
 
             //Display a toast to notify the user that the rating has been submitted
             Toast.makeText(context, getString(R.string.toast_thank_for_rating), Toast.LENGTH_SHORT).show()
-            setRating()
+            //Send rating to the server
+            Timber.d("Sending rating")
+            FiveStarSkillRatingRequest.sendFiveStarRating(skillData.model, skillData.group, skillData.language,
+                    skillTag, v.toInt().toString(), PrefManager.getToken().toString())
+            Timber.d("Sent rating")
+            //starsObject = GetSkillRatingRequest.getRating(skillData.model, skillData.group, skillData.language, skillTag)
+
         })
     }
 
@@ -275,6 +303,7 @@ class SkillDetailsFragment : Fragment() {
      * Set up the axes along with other necessary details for the horizontal bar chart.
      */
     private fun setSkillGraph() {
+        Timber.d("set skill graph")
         skillRatingChart = skill_rating_chart
         skillRatingChart.setPinchZoom(false)
         skillRatingChart.isDoubleTapToZoomEnabled = false
@@ -306,10 +335,62 @@ class SkillDetailsFragment : Fragment() {
         yRight.isEnabled = false
 
         //Set bar entries and add necessary formatting
-        setData()
+        //setData()
+        Timber.d("setting data")
+        setDataTest()
+        Timber.d("Returning from setData")
 
         //Add animation to the graph
         skillRatingChart.animateY(2000)
+    }
+
+    private fun setDataTest() {
+
+        Timber.d("Inside set data test")
+        val totalUsers: Int = starsObject.totalStar
+        val oneStarUsers: Int = starsObject.oneStar
+        val twoStarUsers: Int = starsObject.twoStar
+        val threeStarUsers: Int = starsObject.threeStar
+        val fourStarUsers: Int = starsObject.fourStar
+        val fiveStarUsers: Int = starsObject.fiveStar
+
+        Timber.d("Setting bar entries")
+        //Add a list of bar entries
+        val entries = ArrayList<BarEntry>()
+        entries.add(BarEntry(0f, calcPercentageOfUsers(oneStarUsers, totalUsers)))
+        entries.add(BarEntry(1f, calcPercentageOfUsers(twoStarUsers, totalUsers)))
+        entries.add(BarEntry(2f, calcPercentageOfUsers(threeStarUsers, totalUsers)))
+        entries.add(BarEntry(3f, calcPercentageOfUsers(fourStarUsers, totalUsers)))
+        entries.add(BarEntry(4f, calcPercentageOfUsers(fiveStarUsers, totalUsers)))
+
+        Timber.d("Set up entries")
+
+        val barDataSet = BarDataSet(entries, "Bar Data Set")
+
+        //Set the colors for bars with first color for 1*, second for 2* and so on
+
+        Timber.d("setting colors")
+        barDataSet.setColors(
+                ContextCompat.getColor(skillRatingChart.context, R.color.md_red_300),
+                ContextCompat.getColor(skillRatingChart.context, R.color.md_orange_300),
+                ContextCompat.getColor(skillRatingChart.context, R.color.md_yellow_300),
+                ContextCompat.getColor(skillRatingChart.context, R.color.md_light_green_300),
+                ContextCompat.getColor(skillRatingChart.context, R.color.md_green_300)
+        )
+
+        Timber.d("setting up bar data sets")
+
+        barDataSet.setDrawValues(true)
+        val data = BarData(barDataSet)
+
+
+        //Set the bar width
+        //Note : To increase the spacing between the bars set the value of barWidth to < 1f
+        data.barWidth = 1f
+
+        //Finally set the data and refresh the graph
+        skillRatingChart.data = data
+        skillRatingChart.invalidate()
     }
 
     /**

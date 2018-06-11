@@ -9,6 +9,7 @@ import com.squareup.picasso.Picasso
 import org.fossasia.susi.ai.R
 import org.fossasia.susi.ai.rest.responses.susi.SkillData
 import org.fossasia.susi.ai.skills.SkillFragmentCallback
+import org.fossasia.susi.ai.skills.skilldetails.GetSkillRatingRequest.Companion.getRating
 import org.fossasia.susi.ai.skills.skilllisting.adapters.viewholders.SkillViewHolder
 
 /**
@@ -61,6 +62,7 @@ class SkillListAdapter(val context: Context, private val skillDetails: Pair<Stri
         val skillTag = skillDetails.second.keys.toTypedArray()[position]
         val skillData = skillDetails.second.values.toTypedArray()[position]
         val skillGroup = skillDetails.first.replace(" ", "%20")
+        val starsObject = getRating(skillData.model, skillData.group, skillData.language, skillTag)
         showSkillDetailFragment(skillData, skillGroup, skillTag)
     }
 

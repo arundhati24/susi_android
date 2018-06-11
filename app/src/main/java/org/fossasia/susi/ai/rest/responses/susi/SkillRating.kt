@@ -11,13 +11,13 @@ import java.io.Serializable
 class SkillRating : Serializable {
     @SerializedName("positive")
     @Expose
-    var positive: Int = 0
+    var positive: String = ""
 
     @SerializedName("negative")
     @Expose
-    var negative: Int = 0
+    var negative: String = ""
 
     @SerializedName("stars")
     @Expose
-    var stars: Stars? = null
+    var stars: Stars = Stars()
 }
