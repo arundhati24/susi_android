@@ -10,9 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import org.fossasia.susi.ai.R
+import org.fossasia.susi.ai.helper.Constant
+import org.fossasia.susi.ai.helper.PrefManager
 import org.fossasia.susi.ai.rest.responses.susi.GetSkillFeedbackResponse
 import org.fossasia.susi.ai.skills.feedback.FeedbackActivity
 import org.fossasia.susi.ai.skills.skilldetails.adapters.viewholders.FeedbackViewHolder
+import timber.log.Timber
 
 /**
  *
@@ -46,31 +49,95 @@ class FeedbackAdapter(val context: Context, val feedbackResponse: GetSkillFeedba
     override fun onBindViewHolder(holder: FeedbackViewHolder, position: Int) {
         if (feedbackResponse != null) {
             if (feedbackResponse.feedbackList != null) {
-                if (feedbackResponse.feedbackList[position] != null) {
-                    if (position < 3) {
-                        if (feedbackResponse.feedbackList[position].email != null) {
-                            holder.initials.text = feedbackResponse.feedbackList[position].email?.substring(0, 2)
-                            holder.feedbackEmail?.text = feedbackResponse.feedbackList[position].email
-                        }
-                        if (feedbackResponse.feedbackList[position].timestamp != null) {
-                            val date: String? = getDate(feedbackResponse.feedbackList[position].timestamp)
-                            if (date != null) {
-                                holder.feedbackDate.text = date
-                            } else {
-                                holder.feedbackDate.text = ""
-                            }
+                if (PrefManager.getToken() != null){
+                    if (feedbackResponse.feedbackList[position] != null) {
+                        if (position < 3) {
+                            if(position == 0){
+                                var size = feedbackResponse.feedbackList.size
+                                while (size > 0){
+                                    size--
+                                    if(feedbackResponse.feedbackList[size].email?.trim().equals(PrefManager.getStringSet(Constant.SAVED_EMAIL).iterator().next().toString(), true)){
+                                        if (feedbackResponse.feedbackList[size].email != null) {
+                                            holder.initials.text = feedbackResponse.feedbackList[size].email?.substring(0, 2)
+                                            holder.feedbackEmail?.text = feedbackResponse.feedbackList[size].email
+                                        }
+                                        if (feedbackResponse.feedbackList[size].timestamp != null) {
+                                            val date: String? = getDate(feedbackResponse.feedbackList[size].timestamp)
+                                            if (date != null) {
+                                                holder.feedbackDate.text = date
+                                            } else {
+                                                holder.feedbackDate.text = ""
+                                            }
 
-                        }
-                        if (feedbackResponse.feedbackList[position].feedback != null) {
-                            holder.feedback.maxLines = 1
-                            holder.feedback.ellipsize = TextUtils.TruncateAt.END
-                            holder.feedback.text = feedbackResponse.feedbackList[position].feedback
+                                        }
+                                        if (feedbackResponse.feedbackList[size].feedback != null) {
+                                            holder.feedback.maxLines = 1
+                                            holder.feedback.ellipsize = TextUtils.TruncateAt.END
+                                            holder.feedback.text = feedbackResponse.feedbackList[size].feedback
+                                        }
+
+                                        feedbackResponse.feedbackList.toMutableList().removeAt(size)
+                                        var n = feedbackResponse.feedbackList.size
+                                        while(n > 0){
+                                            n--
+                                            Timber.d("%s", feedbackResponse.feedbackList[n].email)
+                                        }
+                                        break
+                                    }
+                                }
+                            }else {
+                                if (feedbackResponse.feedbackList[position].email != null) {
+                                    holder.initials.text = feedbackResponse.feedbackList[position].email?.substring(0, 2)
+                                    holder.feedbackEmail?.text = feedbackResponse.feedbackList[position].email
+                                }
+                                if (feedbackResponse.feedbackList[position].timestamp != null) {
+                                    val date: String? = getDate(feedbackResponse.feedbackList[position].timestamp)
+                                    if (date != null) {
+                                        holder.feedbackDate.text = date
+                                    } else {
+                                        holder.feedbackDate.text = ""
+                                    }
+
+                                }
+                                if (feedbackResponse.feedbackList[position].feedback != null) {
+                                    holder.feedback.maxLines = 1
+                                    holder.feedback.ellipsize = TextUtils.TruncateAt.END
+                                    holder.feedback.text = feedbackResponse.feedbackList[position].feedback
+                                }
+                            }
                         }
                     }
-                }
-                if (position == 3) {
-                    holder.itemFeedback.visibility = View.GONE
-                    holder.seeAllReviews.visibility = View.VISIBLE
+                    if (position == 3) {
+                        holder.itemFeedback.visibility = View.GONE
+                        holder.seeAllReviews.visibility = View.VISIBLE
+                    }
+                }else {
+                    if (feedbackResponse.feedbackList[position] != null) {
+                        if (position < 3) {
+                            if (feedbackResponse.feedbackList[position].email != null) {
+                                holder.initials.text = feedbackResponse.feedbackList[position].email?.substring(0, 2)
+                                holder.feedbackEmail?.text = feedbackResponse.feedbackList[position].email
+                            }
+                            if (feedbackResponse.feedbackList[position].timestamp != null) {
+                                val date: String? = getDate(feedbackResponse.feedbackList[position].timestamp)
+                                if (date != null) {
+                                    holder.feedbackDate.text = date
+                                } else {
+                                    holder.feedbackDate.text = ""
+                                }
+
+                            }
+                            if (feedbackResponse.feedbackList[position].feedback != null) {
+                                holder.feedback.maxLines = 1
+                                holder.feedback.ellipsize = TextUtils.TruncateAt.END
+                                holder.feedback.text = feedbackResponse.feedbackList[position].feedback
+                            }
+                        }
+                    }
+                    if (position == 3) {
+                        holder.itemFeedback.visibility = View.GONE
+                        holder.seeAllReviews.visibility = View.VISIBLE
+                    }
                 }
             }
         }

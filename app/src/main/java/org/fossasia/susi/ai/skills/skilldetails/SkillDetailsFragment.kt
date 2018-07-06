@@ -30,7 +30,9 @@ import org.fossasia.susi.ai.R
 import org.fossasia.susi.ai.chat.ChatActivity
 import org.fossasia.susi.ai.dataclasses.FetchFeedbackQuery
 import org.fossasia.susi.ai.dataclasses.PostFeedback
+import org.fossasia.susi.ai.helper.Constant
 import org.fossasia.susi.ai.helper.PrefManager
+import org.fossasia.susi.ai.rest.responses.susi.Feedback
 import org.fossasia.susi.ai.rest.responses.susi.GetSkillFeedbackResponse
 import org.fossasia.susi.ai.rest.responses.susi.SkillData
 import org.fossasia.susi.ai.rest.responses.susi.Stars
@@ -39,6 +41,7 @@ import org.fossasia.susi.ai.skills.skilldetails.adapters.recycleradapters.Feedba
 import org.fossasia.susi.ai.skills.skilldetails.adapters.recycleradapters.SkillExamplesAdapter
 import org.fossasia.susi.ai.skills.skilldetails.contract.ISkillDetailsPresenter
 import org.fossasia.susi.ai.skills.skilldetails.contract.ISkillDetailsView
+import timber.log.Timber
 import java.io.Serializable
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -63,6 +66,8 @@ class SkillDetailsFragment : Fragment(), ISkillDetailsView {
     private lateinit var fiveStarTotalSkillRating: TextView
     private lateinit var skillRatingChart: HorizontalBarChart
     private lateinit var xAxis: XAxis
+
+    private var list: List<Feedback> = ArrayList()
 
     companion object {
         const val SKILL_KEY = "skill_key"
@@ -501,11 +506,28 @@ class SkillDetailsFragment : Fragment(), ISkillDetailsView {
      * @param list : Contains the list of Feedback objects received from the getSkillFeedback.json API
      */
     override fun updateFeedbackList(feedbackResponse: GetSkillFeedbackResponse) {
+        Timber.d("check email = %s", PrefManager.getStringSet(Constant.SAVED_EMAIL).iterator().next().toString())
         if (feedbackResponse != null) {
+            if(feedbackResponse.feedbackList != null) {
+                list = feedbackResponse.feedbackList
+                var size = feedbackResponse.feedbackList.size
+                while (size > 0) {
+                    size--
+                    if (feedbackResponse.feedbackList[size].email?.trim().equals(PrefManager.getStringSet(Constant.SAVED_EMAIL).iterator().next().toString(), true)) {
+                        list.toMutableList().removeAt(size)
+                    }
+                }
+
+                size = list.size
+                while (size-- > 0){
+                    Timber.d("user : %s", list[size].email)
+                }
+            }
             val mLayoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
             rvFeedback.setHasFixedSize(true)
             rvFeedback.layoutManager = mLayoutManager
             rvFeedback.adapter = FeedbackAdapter(requireContext(), feedbackResponse)
+
         }
     }
 
