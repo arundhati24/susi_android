@@ -15,6 +15,7 @@ import org.fossasia.susi.ai.rest.responses.susi.PostSkillFeedbackResponse;
 import org.fossasia.susi.ai.rest.responses.susi.ResetPasswordResponse;
 import org.fossasia.susi.ai.rest.responses.susi.SignUpResponse;
 import org.fossasia.susi.ai.rest.responses.susi.SkillRatingResponse;
+import org.fossasia.susi.ai.rest.responses.susi.SkillsSearchResponse;
 import org.fossasia.susi.ai.rest.responses.susi.SusiBaseUrls;
 import org.fossasia.susi.ai.rest.responses.susi.SusiResponse;
 import org.fossasia.susi.ai.rest.responses.susi.UserSetting;
@@ -172,6 +173,9 @@ public interface SusiService {
 
     @GET("/cms/getSkillList.json")
     Call<ListSkillsResponse> fetchListSkills(@QueryMap Map<String, String> query);
+
+    @GET("/cms/getSkillList.json")
+    Call<SkillsSearchResponse> fetchSearchedSkillsList(@QueryMap Map<String, String> query);
 
     @GET("/cms/getRatingByUser.json")
     Call<GetRatingByUserResponse> getRatingByUser(@QueryMap Map<String, String> query);

@@ -21,6 +21,8 @@ import org.fossasia.susi.ai.skills.groupwiseskills.GroupWiseSkillsFragment
 import org.fossasia.susi.ai.skills.settings.ChatSettingsFragment
 import org.fossasia.susi.ai.skills.skilldetails.SkillDetailsFragment
 import org.fossasia.susi.ai.skills.skilllisting.SkillListingFragment
+import org.fossasia.susi.ai.skills.skillsearch.SkillsSearchFragment
+import org.fossasia.susi.ai.skills.skillsearch.contract.ISkillSearchPresenter
 
 
 /**
@@ -36,6 +38,7 @@ class SkillsActivity : AppCompatActivity(), SkillFragmentCallback {
     private val TAG_SKILLS_FRAGMENT = "SkillsFragment"
     private val TAG_ABOUT_FRAGMENT = "AboutUsFragment"
     private val TAG_GROUP_WISE_SKILLS_FRAGMENT = "GroupWiseSkillsFragment"
+    private val TAG_SKILLS_SEARCH_FRAGMENT = "SkillsSearchFragment"
 
     private var mSearchAction: MenuItem? = null
     private var isSearchOpened = false
@@ -75,6 +78,8 @@ class SkillsActivity : AppCompatActivity(), SkillFragmentCallback {
         if (supportFragmentManager.popBackStackImmediate(TAG_SKILLS_FRAGMENT, 0)) {
             title = getString(R.string.skills_activity)
         } else if (supportFragmentManager.popBackStackImmediate(TAG_GROUP_WISE_SKILLS_FRAGMENT, 0)) {
+            title = getString(R.string.skills_activity)
+        } else if (supportFragmentManager.popBackStackImmediate(TAG_SKILLS_SEARCH_FRAGMENT, 0)) {
             title = getString(R.string.skills_activity)
         } else {
             finish()
@@ -125,7 +130,7 @@ class SkillsActivity : AppCompatActivity(), SkillFragmentCallback {
             mSearchAction?.icon = resources.getDrawable(R.drawable.ic_open_search)
             isSearchOpened = false
         } else { //open the search entry
-
+            loadSkillsSearchFragment(null)
             action!!.setDisplayShowCustomEnabled(true) //enable it to display a
             // custom view in the action bar.
             action.setCustomView(R.layout.search_bar)//add the custom view
@@ -150,9 +155,10 @@ class SkillsActivity : AppCompatActivity(), SkillFragmentCallback {
 
                 override fun afterTextChanged(s: Editable?) {
                     val currentText = s.toString()
+
                     //checking that value exist in skills and if not exist comparing the length of the current text to the previous text where the skills are present
                     if (skillFound || (currentText.length <= text.length)) {
-                        skillFound = performSearch(currentText)
+                        performSearch(currentText)
                         text = currentText
                     } else {
                         Toast.makeText(baseContext, R.string.skill_not_found, Toast.LENGTH_SHORT).show()
@@ -174,23 +180,23 @@ class SkillsActivity : AppCompatActivity(), SkillFragmentCallback {
      Used to perform search for the query entered by the user
      Returns true if the skill is found related to search query else false
      */
-    fun performSearch(query: String): Boolean {
-
-        for ((pos, item) in skills.withIndex()) {
-            if (query in item.first) {
-                skillMetrics.scrollToPosition(pos)
-                return true
-            }
-
-            for (item2 in item.second) {
-                if (query.toLowerCase() in item2.group.toLowerCase()) {
-                    skillMetrics.scrollToPosition(pos)
-                    return true
-                }
-            }
-        }
-        Toast.makeText(this, R.string.skill_not_found, Toast.LENGTH_SHORT).show()
-        return false
+    fun performSearch(q: String) {
+        //loadSkillsSearchFragment(q)
+//        for ((pos, item) in skills.withIndex()) {
+//            if (query in item.first) {
+//                skillMetrics.scrollToPosition(pos)
+//                return true
+//            }
+//
+//            for (item2 in item.second) {
+//                if (query.toLowerCase() in item2.group.toLowerCase()) {
+//                    skillMetrics.scrollToPosition(pos)
+//                    return true
+//                }
+//            }
+//        }
+//        Toast.makeText(this, R.string.skill_not_found, Toast.LENGTH_SHORT).show()
+//        return false
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
@@ -218,6 +224,15 @@ class SkillsActivity : AppCompatActivity(), SkillFragmentCallback {
         val groupWiseSkillsFragment = GroupWiseSkillsFragment.newInstance(group)
         (this).supportFragmentManager.beginTransaction()
                 .add(R.id.fragment_container, groupWiseSkillsFragment)
+                .addToBackStack(GroupWiseSkillsFragment().toString())
+                .commit()
+    }
+
+    fun loadSkillsSearchFragment(q: String?) {
+        handleOnLoadingFragment()
+        val skillsSearchFragment = SkillsSearchFragment.newInstance(q)
+        (this).supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, skillsSearchFragment)
                 .addToBackStack(GroupWiseSkillsFragment().toString())
                 .commit()
     }

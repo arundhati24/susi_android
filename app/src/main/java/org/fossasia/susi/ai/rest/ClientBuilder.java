@@ -4,12 +4,14 @@ import org.fossasia.susi.ai.dataclasses.SkillMetricsDataQuery;
 import org.fossasia.susi.ai.dataclasses.SkillRatingQuery;
 import org.fossasia.susi.ai.dataclasses.SkillsListQuery;
 import org.fossasia.susi.ai.dataclasses.FetchFeedbackQuery;
+import org.fossasia.susi.ai.dataclasses.SkillsSearchQuery;
 import org.fossasia.susi.ai.helper.PrefManager;
 import org.fossasia.susi.ai.rest.interceptors.TokenInterceptor;
 import org.fossasia.susi.ai.rest.responses.susi.ListSkillMetricsResponse;
 import org.fossasia.susi.ai.rest.responses.susi.ListSkillsResponse;
 import org.fossasia.susi.ai.rest.responses.susi.SkillRatingResponse;
 import org.fossasia.susi.ai.rest.responses.susi.GetSkillFeedbackResponse;
+import org.fossasia.susi.ai.rest.responses.susi.SkillsSearchResponse;
 import org.fossasia.susi.ai.rest.services.SusiService;
 
 import java.util.HashMap;
@@ -92,5 +94,14 @@ public class ClientBuilder {
         queryMap.put("filter_name", queryObject.getFilterName());
         queryMap.put("filter_type", queryObject.getFilterType());
         return getSusiApi().fetchListSkills(queryMap);
+    }
+
+    public static Call<SkillsSearchResponse> skillsSearchCall(SkillsSearchQuery queryObject) {
+        Map<String, String> queryMap = new HashMap<String, String>();
+        queryMap.put("q", queryObject.getQ());
+        queryMap.put("applyFilter", queryObject.getApplyFilter());
+        queryMap.put("filter_name", queryObject.getFilterName());
+        queryMap.put("filter_type", queryObject.getFilterType());
+        return getSusiApi().fetchSearchedSkillsList(queryMap);
     }
 }
