@@ -34,7 +34,7 @@ object Utils {
     }
 
     fun getImageLink(skillData: SkillData): String {
-        val uri = URI("${BaseUrl.SUSI_DEFAULT_BASE_URL}/cms/getImage.png?model=${skillData.model}&language=${skillData.language}&group=${skillData.group}&image=${skillData.image}")
+        val uri = URI("${BaseUrl.SUSI_DEFAULT_BASE_URL}/cms/getImage.png?model=${skillData.model}&language=${skillData.language}&group=${skillData.group}&image=${skillData.image}".replace(" ", "%20"))
         return uri.toASCIIString()
     }
 

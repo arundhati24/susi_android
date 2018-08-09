@@ -20,6 +20,9 @@ import org.fossasia.susi.ai.skills.groupwiseskills.adapters.recycleradapters.Ski
 import org.fossasia.susi.ai.skills.groupwiseskills.contract.IGroupWiseSkillsPresenter
 import org.fossasia.susi.ai.skills.groupwiseskills.contract.IGroupWiseSkillsView
 import timber.log.Timber
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+
 
 /**
  *
@@ -59,6 +62,10 @@ class GroupWiseSkillsFragment : Fragment(), IGroupWiseSkillsView, SwipeRefreshLa
         swipeRefreshLayout.setOnRefreshListener(this)
         setUPAdapter()
         groupWiseSkillsPresenter.getSkills(swipeRefreshLayout.isRefreshing, skills.group)
+        val sortBySpinnerAdapter = ArrayAdapter.createFromResource(context,
+                R.array.sortby, android.R.layout.simple_spinner_item)
+        sortBySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerSortBy.adapter = sortBySpinnerAdapter
         super.onViewCreated(view, savedInstanceState)
     }
 

@@ -32,4 +32,16 @@
         <item>Nov</item>
         <item>Dec</item>
     </array>
+
+    <string-array name="sortby">
+        <item>A-Z</item>
+        <item>Z-A</item>
+        <item>Top Rated</item>
+        <item>Newly Created</item>
+        <item>Recently Updated</item>
+        <item>Feedback Count</item>
+        <item>This Week Usage</item>
+        <item>This Month Usage</item>
+    </string-array>
+
 </resources>
